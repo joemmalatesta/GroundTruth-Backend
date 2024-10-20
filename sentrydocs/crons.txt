@@ -1,0 +1,85 @@
+Scheduled Job Monitoring with Sentry - Documentation Summary
+
+Sentry enables monitoring for recurring scheduled jobs through check-ins and heartbeats. This feature helps developers track the progress of their jobs, providing alerts on missed starts, timeouts, and job failures. Here's how you can implement it:
+
+Key Features:
+Alerts and Metrics:
+
+Sentry can send alerts and generate metrics to help solve errors, detect timeouts, and prevent service disruptions in your scheduled jobs.
+Supported Platforms:
+
+Sentry supports a wide range of platforms including JavaScript frameworks like Next.js, SvelteKit, and Node.js, as well as serverless environments such as AWS Lambda, Azure Functions, and others.
+Requirements:
+
+To monitor your scheduled job:
+Create a Monitor: You need to set up a monitor in Sentry.
+Configure Check-Ins or Heartbeats: This tracks the job's progress. Optionally, you can also create or update a monitor dynamically via a check-in.
+Check-In Monitoring (Recommended)
+Check-in monitoring allows you to track a job's execution through two stages:
+
+Start of the Job: Notify Sentry when the job begins.
+End of the Job: Notify Sentry when the job ends successfully or if it fails.
+Basic Workflow:
+
+At the job's start:
+bash
+Copy code
+curl "${SENTRY_CRONS}?status=in_progress"
+At the job's end (if successful):
+bash
+Copy code
+curl "${SENTRY_CRONS}?status=ok"
+If the job fails:
+bash
+Copy code
+curl "${SENTRY_CRONS}?status=error"
+Overlapping Jobs:
+If your jobs overlap (i.e., a new job starts before the previous one ends), you must use a stable check_in_id for each request to avoid issues. This is useful for jobs that have long execution times compared to their intervals.
+Example:
+
+bash
+Copy code
+CHECK_IN_ID="$(uuidgen)"
+curl "${SENTRY_CRONS}?check_in_id=${CHECK_IN_ID}&status=in_progress"
+curl "${SENTRY_CRONS}?check_in_id=${CHECK_IN_ID}&status=ok"
+Specifying Monitor Environments (Optional):
+You can monitor different environments (e.g., dev, production) by specifying the environment in the check-ins. If no environment is specified, the default is production.
+Example for a dev environment:
+
+bash
+Copy code
+curl "${SENTRY_CRONS}?environment=dev&status=in_progress"
+Automatic Monitor Creation or Update (Upsert) via Check-In (Optional):
+Sentry allows you to create or update monitors dynamically by sending a check-in payload. This is useful for managing many scheduled tasks.
+Example:
+
+bash
+Copy code
+curl -X POST "${SENTRY_CRONS}" \
+    --header 'Content-Type: application/json' \
+    --data-raw '{"monitor_config": {"schedule": {"type": "crontab", "value": "0 * * * *"}}, "status": "in_progress"}'
+The monitor_config parameters include:
+
+schedule_type: Choose either crontab or interval.
+schedule: Define the schedule based on your job.
+Example: Crontab format {"type": "crontab", "value": "0 * * * *"} or Interval {"type": "interval", "value": "2", "unit": "hour"}.
+checkin_margin: Optional grace period for missed check-ins.
+max_runtime: Maximum allowed runtime before Sentry considers the job failed.
+timezone: Set the timezone for the job.
+Heartbeat Monitoring (Simplified Check-In):
+Heartbeats notify Sentry if a job misses its scheduled start but do not track job duration or failure. You only send one check-in when the job completes.
+Example:
+
+bash
+Copy code
+curl "${SENTRY_CRONS}?status=ok"
+Alerts for Missed or Failed Jobs:
+Sentry will create an error event with a monitor tag if:
+
+A job fails to check in (missed).
+A job runs beyond its maximum runtime (failed).
+A job manually reports a failure.
+To receive alerts:
+
+Go to the Alerts section in Sentry and create a new alert under "Issues" using the relevant monitor tag (e.g., monitor.slug equals my-monitor-slug-here).
+By setting up check-ins or heartbeats, Sentry helps ensure your scheduled jobs run smoothly, notifying you of any disruptions or failures in real-time, allowing for quick troubleshooting and resolution.

@@ -1,0 +1,68 @@
+User Feedback in Sentry - Documentation Summary
+
+The User Feedback feature in Sentry enables you to collect user feedback from your application at any time, without requiring an error event. Additionally, Sentry offers a Crash-Report Modal for capturing feedback during error events. This combination provides a comprehensive way to gather insights from users during regular operation or when issues arise.
+
+Key Features:
+User Feedback Collection:
+
+Collect feedback from users without waiting for errors to occur, using the embeddable User Feedback Widget.
+For error events, you can prompt users to provide feedback via the Crash-Report Modal.
+Supported Platforms:
+
+The feature is not supported on certain platforms, such as Node.js, AWS Lambda, Azure Functions, Express, and others. Full support requires Sentry version 24.4.2 or higher for self-hosted instances.
+User Feedback Widget:
+
+This widget can be embedded anywhere in your application, allowing users to submit feedback at any point.
+The default position is the bottom-right corner of your website, but you can customize its appearance and behavior.
+Pre-Requisites:
+
+Sentry SDK version 8.0.0 and above.
+If self-hosting, ensure you're on version 24.4.2 or higher to access full functionality.
+Screenshots: On SDK version 8.0.0+, users can submit screenshots with their feedback (excluding mobile devices where this is unsupported). Screenshot functionality uses your attachments quota, with 1GB available on all plans, covering approximately 2500 screenshots.
+Session Replay Integration:
+
+The User Feedback widget integrates with Session Replay to provide additional context when users submit feedback. When Session Replay is enabled, Sentry buffers up to 30 seconds of the user's session before feedback is submitted, allowing you to view this replay alongside their feedback.
+Crash-Report Modal:
+The Crash-Report Modal is a JavaScript-based feature that prompts users to submit feedback during error events (e.g., instead of showing a 500 error page).
+
+The modal collects the user’s name, email address, and a description of what occurred.
+Sentry automatically pairs this feedback with the associated event, helping to provide more detailed insights into the issue.
+Example integration:
+
+javascript
+Copy code
+Sentry.init({
+  dsn: 'YOUR_PUBLIC_DSN',
+  integrations: [new Sentry.CrashReportModal()],
+});
+The modal uses your public DSN to authenticate and passes in the event ID generated on your backend for pairing feedback with the error event.
+User Feedback API:
+If you'd like to use your own UI for feedback collection, the User Feedback API is available. This API allows you to send user feedback using any programming language. The SDK handles creating the HTTP request, and Sentry links the feedback to the relevant event using the eventId.
+
+Example usage with the API:
+
+javascript
+Copy code
+Sentry.captureUserFeedback({
+  eventId: 'YOUR_EVENT_ID',
+  name: 'User Name',
+  email: 'user@example.com',
+  comments: 'Additional user feedback.',
+});
+How to Set Up:
+Install the SDK: Ensure you're using SDK version 8.0.0 or above.
+Integrate Feedback Widget: Add the widget to your app by modifying your Sentry initialization. The widget will automatically display in the corner of your app unless customized otherwise.
+Configure Session Replay: Ensure that the Session Replay integration is correctly set up to capture session data when the user opens the feedback widget.
+Enable Crash-Report Modal: Add the Crash-Report modal to your error pages, prompting users to provide feedback during an error.
+By collecting feedback both proactively and reactively, Sentry allows you to gather valuable insights from users, helping you detect issues and improve the overall user experience.
+
+
+
+
+
+
+
+
+
+
+

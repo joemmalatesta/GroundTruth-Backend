@@ -1,0 +1,23 @@
+Browser Profiling Documentation Summary
+
+Browser Profiling in Sentry is a beta feature that uses the JavaScript Self-Profiling API to collect performance data from web browsers, specifically Chromium-based ones. It captures real user data in production environments, providing insights into how your JavaScript code performs under real-world conditions. However, since the API is currently only available in Chromium, the collected data reflects only this browser's users.
+
+Key Features:
+Beta Status:
+
+Browser Profiling is still in beta, meaning it may have bugs and will be further developed as the Self-Profiling API specification matures and gains wider browser adoption.
+Prerequisites for Setup:
+
+Install the SDK: Ensure that the Sentry SDK version is at least 7.60.0 for JavaScript or 4.16.0 for Electron.
+Add Document Policy: Add Document-Policy: js-profiling in the document's response header to enable profiling.
+Configure the SDK: Enable the BrowserProfilingIntegration and set a profilesSampleRate in your application’s lifecycle to start capturing performance profiles.
+Comparison to Chrome DevTools:
+
+Sentry Profiling in Production: Unlike Chrome DevTools, which only captures performance data locally, Sentry’s profiler works in production, capturing real-world performance metrics.
+Sampling Rates: Sentry's profiler runs at a lower sampling rate (100Hz with a 10ms sample period) compared to DevTools (1000Hz with a 1ms sample period), offering lightweight profiling.
+Deobfuscation Support: Sentry automatically deobfuscates minified JavaScript code, providing clearer function names in performance profiles, unlike DevTools, which requires manual steps.
+Limitations:
+
+Chromium-Only: Currently, only Chromium-based browsers expose the necessary profiling API. Therefore, profiling data will be biased toward users of these browsers.
+Future Adoption: As more browsers adopt the API, browser profiling will become more comprehensive. Sentry encourages users to support the API's growth through the official WICG repository.
+By using Sentry’s browser profiling feature, developers can monitor JavaScript performance in real user environments, making it easier to optimize code and address performance bottlenecks based on real-world data. However, the data collected is currently limited to Chromium users, so analysis should take that into consideration.

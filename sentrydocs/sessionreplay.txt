@@ -1,0 +1,36 @@
+Session Replay Documentation Summary
+
+Session Replay in Sentry provides a video-like reproduction of a user's interactions in the browser before, during, and after an issue. This feature helps developers quickly pinpoint the cause of errors or latency by offering a visual replay of key actions such as clicks, scrolls, and network requests in a unified interface, similar to browser DevTools. By default, the SDK masks sensitive data, ensuring user privacy.
+
+Key Features:
+Canvas Recording:
+
+Allows HTML canvas elements to be recorded.
+For 3D and WebGL canvases, the preserveDrawingBuffer setting may impact performance. To avoid this, manual snapshotting is available.
+Content Security Policy (CSP):
+
+Session Replay uses WebWorkers for offloading tasks, which requires specific CSP settings.
+Safari versions <= 15.4 need additional configuration.
+React Component Names:
+
+To capture React component names in replays, additional setup is required. Component names become searchable and improve debugging through breadcrumbs, rage clicks, and dead clicks.
+User Session:
+
+Sessions start when the SDK is initialized and capture interactions (like clicks or page navigations) until 5 minutes of inactivity or 60 minutes of total duration.
+Sessions end when the browser tab is closed.
+Replay on Errors:
+
+Developers can choose to capture replays only when an error occurs. In this case, up to one minute of events prior to the error is recorded.
+Sampling:
+
+Two sample rates can be configured: one for full-session replays and one for error-triggered replays.
+Sampling begins as soon as a session starts and helps manage traffic effectively.
+Error Linking:
+
+Errors during a replay session are linked to the specific replay, allowing easy navigation between error logs and the replay itself.
+Rare cases may result in errors not being captured, such as network issues or rate limits.
+Verification & Testing:
+
+During testing, set sampling to 100% to capture all sessions.
+For production, reduce this rate while keeping error-sampling high.
+By integrating and configuring Sentry’s Session Replay feature, developers can better track user interactions, diagnose issues, and optimize website performance.

@@ -1,0 +1,5 @@
+id,type,title,url,summary
+1,docs,Profiling,https://github.com/getsentry/sentry-docs/blob/master/docs/platforms/javascript/common/profiling/index.mdx,profiling.txt
+2,docs,Session Replay,https://github.com/getsentry/sentry-docs/blob/master/docs/platforms/javascript/common/session-replay/index.mdx,sessionreplay.txt
+3,docs,Crons,https://github.com/getsentry/sentry-docs/blob/master/docs/platforms/javascript/common/crons/index.mdx,crons.txt
+4,docs,User Feedback,https://github.com/getsentry/sentry-docs/blob/master/docs/platforms/javascript/common/user-feedback/index.mdx,userfeedback.txt

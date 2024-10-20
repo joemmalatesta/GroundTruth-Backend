@@ -1,0 +1,19 @@
+This documentation provides details about the usage of Tab, TabAnchor, and TabGroup components within a Svelte-based UI framework. It walks through the following key features:
+
+Overview:
+
+Explains the use of tabs for switching between different views and pages, with a focus on maintaining a consistent user experience.
+Tabs Components:
+
+Tab: Provides guidance on implementing a basic tab interface that manages panel content using an active selection state.
+TabAnchor: Offers a way to switch between different routes, with recommendations to avoid certain attributes like target="_blank".
+Customization:
+
+Instructions on configuring properties such as justify, active states, hover effects, and layout for flexibility in positioning and styling.
+Examples and Code Previews:
+
+Provides several usage examples, complete with TypeScript and HTML code snippets for embedding TabGroup components, defining tab states, and linking content dynamically with Svelte's $page store.
+Additional Functionality:
+
+Discusses the use of Svelte stores to manage tab states persistently, and how to implement them with Skeleton's Local Storage Store for persistence across sessions.
+The documentation serves as both a functional guide and a code reference for developers utilizing the tab components within their applications.

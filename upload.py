@@ -2,7 +2,6 @@ import os
 import requests
 import base64
 import chromadb
-from sentence_transformers import SentenceTransformer
 
 def get_github_contents(repo_owner, repo_name, path='', token=None):
     headers = {}
@@ -14,49 +13,60 @@ def get_github_contents(repo_owner, repo_name, path='', token=None):
     response.raise_for_status()
     return response.json()
 
-def get_file_content(file_url, token=None):
+def get_file_content(url, token=None):
     headers = {}
     if token:
         headers['Authorization'] = f'token {token}'
-    
-    response = requests.get(file_url, headers=headers)
+    print(url)
+    response = requests.get(url, headers=headers)
+    print(response.text)
     response.raise_for_status()
-    return base64.b64decode(response.json()['content']).decode('utf-8')
+    content = response.text
+    
+    
+    # Extract filename and path from the URL
+    path_parts = url.split('/')
+    filename = path_parts[-1]
+    path = '/'.join(path_parts[:-1])
+    
+    # Create the directory if it doesn't exist
+    os.makedirs(os.path.join('skeleton', 'doc', path), exist_ok=True)
+    
+    # Save the content to the file
+    with open(os.path.join('skeleton', 'doc', path, filename), 'w', encoding='utf-8') as f:
+        f.write(content)
+    
+    print(f"Saved content to skeleton/doc/{path}/{filename}")
+    return content
 
-def process_repo(repo_owner, repo_name, start_path, token=None, chroma_client=None, embedding_model=None):
+
+def sanity_check(repo_owner, repo_name, start_path, token=None):
     contents = get_github_contents(repo_owner, repo_name, path=start_path, token=token)
     
+    print(f"Contents of {start_path}:")
     for item in contents:
         if item['type'] == 'dir':
-            process_repo(repo_owner, repo_name, item['path'], token, chroma_client, embedding_model)
+            print(f"\nDirectory: {item['name']}")
+            try:
+                page_svelte = get_github_contents(repo_owner, repo_name, f"{item['path']}/+page.svelte", token=token)
+                if isinstance(page_svelte, dict) and page_svelte.get('type') == 'file':
+                    print(f"  - Found +page.svelte")
+                    content = get_file_content(page_svelte['download_url'], token=token)
+                    print(f"  - Content (first 200 characters):\n{content[:200]}...")
+                else:
+                    print(f"  - No +page.svelte found")
+            except requests.exceptions.HTTPError as e:
+                if e.response.status_code == 404:
+                    print(f"  - No +page.svelte found")
+                else:
+                    print(f"  - Error checking for +page.svelte: {e}")
         elif item['type'] == 'file':
-            file_content = get_file_content(item['download_url'], token=token)
-            file_path = f"{repo_owner}/{repo_name}/{item['path']}"
-            
-            # Generate embedding
-            embedding = embedding_model.encode(file_content)
-            
-            # Add to Chroma
-            chroma_client.add(
-                embeddings=[embedding.tolist()],
-                documents=[file_content],
-                metadatas=[{"file_path": file_path}],
-                ids=[file_path]
-            )
-            print(f"Added {file_path} to Chroma database")
+            print(f"File: {item['name']}")
 
 if __name__ == '__main__':
-    repo_owner = 'owner_username'
-    repo_name = 'repository_name'
-    start_path = 'src'  # Start from the /src directory
+    repo_owner = 'skeletonlabs'
+    repo_name = 'skeleton'
+    start_path = 'sites/skeleton.dev/src/routes/(inner)/components'
     github_token = os.getenv('GITHUB_TOKEN')
     
-    # Initialize Chroma client
-    chroma_client = chromadb.Client()
-    collection = chroma_client.create_collection(name="github_code")
-    
-    # Initialize embedding model
-    embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-    
-    process_repo(repo_owner, repo_name, start_path, token=github_token, chroma_client=collection, embedding_model=embedding_model)
-    print("Repository processed and added to Chroma database")
+    sanity_check(repo_owner, repo_name, start_path, token=github_token)
